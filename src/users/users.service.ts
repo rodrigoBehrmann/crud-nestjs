@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -27,14 +27,35 @@ export class UsersService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    const index = this.users.findIndex((user) => user.id === id);
+
+    return this.users[index];
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    const user = this.findOne(id)
+
+    const newUser = {
+      ...user,
+      ...updateUserDto,
+    }
+
+    const index = this.users.findIndex((user) => user.id === id);
+
+    this.users[index] = newUser;
+
+    return newUser;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} user`;
+    const index = this.users.findIndex((user) => user.id === id);
+
+    if(index === -1){
+      throw new NotFoundException('User with id ${id} does not exists');
+    }
+
+    this.users.splice(index, 1);
+
+    return ;
   }
 }
